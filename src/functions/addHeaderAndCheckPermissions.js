@@ -1,14 +1,15 @@
-import tokenHelper from './tokenHelper'
+import tokenHelper from "./tokenHelper"
 
 const addHeaderAndCheckPermissions = (app) =>
 {
     app.use((req, res, next) =>
     {
-        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.setHeader("Access-Control-Allow-Origin", "*")
         if (
-            (req.originalUrl === '/') ||
-            (req.originalUrl === '/user' && req.method === 'POST') ||
-            (req.originalUrl === '/user/login')
+            (req.originalUrl === "/") ||
+            (req.originalUrl === "/user" && req.method === "POST") ||
+            (req.originalUrl === "/user/login") ||
+            (req.originalUrl === "/DatePicker")
         )
         {
             next()
@@ -25,7 +26,7 @@ const addHeaderAndCheckPermissions = (app) =>
                     })
                     .catch((err) => res.status(401).send(err))
             }
-            else res.status(401).send({message: 'send token!'})
+            else res.status(401).send({message: "send token!"})
         }
     })
 }
