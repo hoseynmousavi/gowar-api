@@ -16,8 +16,7 @@ const userModel = new model({
         type: String,
     },
     birth_date: {
-        type: Number,
-        required: 'Enter Age!',
+        type: String,
     },
     email: {
         type: String,
