@@ -6,10 +6,15 @@ const userModel = new model({
     phone: {
         type: String,
         unique: true,
+        minlength: 11,
+        maxlength: 11,
+        index: true,
         required: 'Enter Phone!',
     },
     password: {
         type: String,
+        minlength: 6,
+        maxlength: 30,
         required: 'Enter Password!',
     },
     name: {
@@ -17,6 +22,8 @@ const userModel = new model({
     },
     birth_date: {
         type: String,
+        minlength: 8,
+        maxlength: 10,
     },
     email: {
         type: String,
@@ -25,7 +32,7 @@ const userModel = new model({
     },
     created_date: {
         type: Date,
-        default: new Date(),
+        default: Date.now,
     },
 })
 

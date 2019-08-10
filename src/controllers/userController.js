@@ -15,24 +15,19 @@ const getUsers = (req, res) =>
 
 const addNewUser = (req, res) =>
 {
-    const {phone, password} = req.body
-    if (phone && phone.length === 11 && password && password.length >= 6)
+    delete req.body.created_date
+    let newUser = new user(req.body)
+    newUser.save((err, createdUser) =>
     {
-        delete req.body.created_date
-        let newUser = new user(req.body)
-        newUser.save((err, createdUser) =>
+        if (err) res.status(400).send(err)
+        else
         {
-            if (err) res.status(400).send(err)
-            else
-            {
-                const user = createdUser.toJSON()
-                tokenHelper.encodeToken(user)
-                    .then((token) => res.send({...user, token}))
-                    .catch((err) => res.status(500).send({message: err}))
-            }
-        })
-    }
-    else res.status(400).send({message: 'please send a correct phone & password!'})
+            const user = createdUser.toJSON()
+            tokenHelper.encodeToken(user)
+                .then((token) => res.send({...user, token}))
+                .catch((err) => res.status(500).send({message: err}))
+        }
+    })
 }
 
 const getUserById = (req, res) =>
@@ -48,7 +43,7 @@ const userLogin = (req, res) =>
 {
     const phone = req.body.phone
     const password = req.body.password
-    if (phone && password && !isNaN(phone.length) && phone.length === 11 && password.length >= 6)
+    if (phone && !isNaN(phone))
     {
         user.findOne({phone, password}, (err, takenUser) =>
         {
@@ -63,7 +58,7 @@ const userLogin = (req, res) =>
             }
         })
     }
-    else res.status(400).send({message: 'please send a correct phone & password!'})
+    else res.status(400).send({message: 'please send a correct phone!'})
 }
 
 const updateUserById = (req, res) =>
