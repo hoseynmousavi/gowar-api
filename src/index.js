@@ -8,6 +8,7 @@ import userRouter from './routes/userRouter'
 import datePickerRouter from './routes/datePickerRouter'
 import data from './data'
 import addHeaderAndCheckPermissions from './functions/addHeaderAndCheckPermissions'
+import notFoundRooter from './routes/notFoundRouter'
 
 // Normal Things Never Leave Us Alone ...
 const app = express()
@@ -27,6 +28,7 @@ addHeaderAndCheckPermissions(app)
 rootRouter(app)
 userRouter(app)
 datePickerRouter(app)
+notFoundRooter(app)
 
 // Eventually Run The Server
 app.listen(data.port, () => console.log(`Backend is Now Running on Port ${data.port}`))
