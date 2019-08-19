@@ -34,6 +34,10 @@ const userModel = new model({
     status: {
         type: String,
     },
+    type: {
+        type: String,
+        default: "user",
+    },
     description: {
         type: String,
         maxlength: 500,

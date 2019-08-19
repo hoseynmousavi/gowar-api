@@ -16,6 +16,9 @@ const getUsers = (req, res) =>
 const addNewUser = (req, res) =>
 {
     delete req.body.created_date
+    delete req.body.type
+    delete req.body.is_verified
+    delete req.body.is_deleted
     let newUser = new user(req.body)
     newUser.save((err, createdUser) =>
     {
@@ -66,6 +69,10 @@ const updateUserById = (req, res) =>
     // {new: true} means return new data after update
     if (req.headers.authorization._id)
     {
+        delete req.body.type
+        delete req.body.created_date
+        delete req.body.is_verified
+        delete req.body.is_deleted
         user.findOneAndUpdate({_id: req.headers.authorization._id}, req.body, {new: true, useFindAndModify: false}, (err, updatedUser) =>
         {
             if (err) res.status(400).send(err)
