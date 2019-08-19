@@ -8,7 +8,7 @@
 *.zip
 
 # private data & keys
-/src/data
+/src/secure
 
 # misc
 /.idea
