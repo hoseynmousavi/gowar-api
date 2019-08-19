@@ -6,6 +6,7 @@ import mongoose from "mongoose"
 import data from "./secure/data"
 import rootRouter from "./routes/rootRouter"
 import userRouter from "./routes/userRouter"
+import eventRouter from "./routes/eventRouter"
 import datePickerRouter from "./routes/datePickerRouter"
 import notFoundRooter from "./routes/notFoundRouter"
 import addHeaderAndCheckPermissions from "./functions/addHeaderAndCheckPermissions"
@@ -27,6 +28,7 @@ addHeaderAndCheckPermissions(app)
 // Routing Shits
 rootRouter(app)
 userRouter(app)
+eventRouter(app)
 datePickerRouter(app)
 notFoundRooter(app)
 

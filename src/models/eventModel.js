@@ -10,10 +10,10 @@ const eventModel = new model({
     description: {
         type: String,
     },
-    category: [{
-        type: Number,
-        index: true,
-    }],
+    category: {
+        type: Array,
+        required: "Enter Category!",
+    },
     location: {
         type: String,
         required: "Enter Location!",
@@ -50,7 +50,7 @@ const eventModel = new model({
     },
     created_date: {
         type: Date,
-        default: Date.now,
+        default: Date.now(),
     },
 })
 

@@ -72,16 +72,24 @@ const updateUserById = (req, res) =>
             else res.send(updatedUser)
         })
     }
-    else res.status(500).send({message: "error"})
+    else res.status(500).send({message: "auth error"})
 }
 
 const deleteUserById = (req, res) =>
 {
-    user.deleteOne({_id: req.params.userId}, (err) =>
+    if (req.headers.authorization._id)
     {
-        if (err) res.status(400).send(err)
-        else res.send({message: "user deleted successfully"})
-    })
+        user.findOneAndUpdate(
+            {_id: req.headers.authorization._id},
+            {is_deleted: true},
+            {new: true, useFindAndModify: false},
+            (err, updatedUser) =>
+            {
+                if (err) res.status(400).send(err)
+                else res.send(updatedUser)
+            })
+    }
+    else res.status(500).send({message: "auth error"})
 }
 
 const userController = {
