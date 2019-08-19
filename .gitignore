@@ -9,6 +9,7 @@
 
 # private data & keys
 /src/secure
+/src/data
 
 # misc
 /.idea
