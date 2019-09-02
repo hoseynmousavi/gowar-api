@@ -1,8 +1,8 @@
 import mongoose from "mongoose"
 
-const model = mongoose.Schema
+const schema = mongoose.Schema
 
-const userModel = new model({
+const userModel = new schema({
     name: {
         type: String,
         required: "Enter Name!",

@@ -73,7 +73,7 @@ const updateUserById = (req, res) =>
         delete req.body.created_date
         delete req.body.is_verified
         delete req.body.is_deleted
-        user.findOneAndUpdate({_id: req.headers.authorization._id}, req.body, {new: true, useFindAndModify: false}, (err, updatedUser) =>
+        user.findOneAndUpdate({_id: req.headers.authorization._id}, req.body, {new: true, useFindAndModify: false, runValidators: true}, (err, updatedUser) =>
         {
             if (err) res.status(400).send(err)
             else res.send(updatedUser)
