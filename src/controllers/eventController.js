@@ -12,29 +12,7 @@ const getEvents = (req, res) =>
     event.find({is_deleted: false}, (err, events) =>
     {
         if (err) res.status(400).send(err)
-        else
-        {
-            for (let i = 0; i < events.length; i++)
-            {
-                eventLike.find({event_id: events[i]._id}, (err, likes) =>
-                {
-                    if (err) res.status(400).send(err)
-                    else events[i] = {...events[i].toJSON(), likes_count: likes.length}
-                    if (i === events.length - 1)
-                    {
-                        for (let j = 0; j < events.length; j++)
-                        {
-                            eventComment.find({event_id: events[j]._id, is_deleted: false}, (err, comments) =>
-                            {
-                                if (err) res.status(400).send(err)
-                                else events[j] = {...events[j], comments_count: comments.length}
-                                if (j === events.length - 1) res.send(events)
-                            })
-                        }
-                    }
-                })
-            }
-        }
+        else res.send(events)
     })
 }
 
@@ -43,6 +21,8 @@ const addNewEvent = (req, res) =>
     delete req.body.created_date
     delete req.body.is_pinned
     delete req.body.is_deleted
+    delete req.body.likes_count
+    delete req.body.comments_count
     req.body.creator_id = req.headers.authorization._id
     req.body.category ? req.body.category = JSON.parse(req.body.category) : null
     let newEvent = new event(req.body)
@@ -58,22 +38,7 @@ const getEventById = (req, res) =>
     event.findById(req.params.eventId, (err, takenEvent) =>
     {
         if (err) res.status(400).send(err)
-        else
-        {
-            eventLike.find({event_id: takenEvent._id}, (err, likes) =>
-            {
-                if (err) res.status(400).send(err)
-                else
-                {
-                    takenEvent = {...takenEvent.toJSON(), likes_count: likes.length}
-                    eventComment.find({event_id: takenEvent._id, is_deleted: false}, (err, comments) =>
-                    {
-                        if (err) res.status(400).send(err)
-                        else res.send({...takenEvent, comments_count: comments.length})
-                    })
-                }
-            })
-        }
+        else res.send(takenEvent)
     })
 }
 
@@ -85,6 +50,8 @@ const updateEventById = (req, res) =>
         delete req.body.is_pinned
         delete req.body.is_deleted
         delete req.body.creator_id
+        delete req.body.likes_count
+        delete req.body.comments_count
         req.body.category ? req.body.category = JSON.parse(req.body.category) : null
         event.findOneAndUpdate(
             {_id: req.body._id, creator_id: req.headers.authorization._id, is_deleted: false},
@@ -107,7 +74,7 @@ const deleteEventById = (req, res) =>
         event.findOneAndUpdate(
             {_id: req.params.eventId, creator_id: req.headers.authorization._id},
             {is_deleted: true},
-            {new: true, useFindAndModify: false},
+            {useFindAndModify: false},
             (err) =>
             {
                 if (err) res.status(400).send(err)
@@ -123,19 +90,44 @@ const addNewLike = (req, res) =>
     delete req.body.created_date
     req.body.user_id = req.headers.authorization._id
     const newEventLike = new eventLike(req.body)
-    newEventLike.save((err, createdEvent) =>
+    newEventLike.save((err, createdLike) =>
     {
         if (err) res.status(400).send(err)
-        else res.send(createdEvent)
+        else
+        {
+            event.findOneAndUpdate(
+                {_id: req.body.event_id, creator_id: req.headers.authorization._id},
+                {$inc: {likes_count: 1}},
+                {useFindAndModify: false},
+                (err) =>
+                {
+                    if (err) res.status(400).send(err)
+                    else res.send(createdLike)
+                },
+            )
+        }
     })
 }
 
 const deleteLike = (req, res) =>
 {
-    eventLike.deleteOne({event_id: req.params.eventId, user_id: req.headers.authorization._id}, (err) =>
+    eventLike.deleteOne({event_id: req.params.eventId, user_id: req.headers.authorization._id}, (err, statistic) =>
     {
         if (err) res.status(400).send(err)
-        else res.send({message: "like deleted successfully"})
+        else if (statistic.deletedCount === 1)
+        {
+            event.findOneAndUpdate(
+                {_id: req.params.eventId, creator_id: req.headers.authorization._id},
+                {$inc: {likes_count: -1}},
+                {useFindAndModify: false},
+                (err) =>
+                {
+                    if (err) res.status(400).send(err)
+                    else res.send({message: "like deleted successfully"})
+                },
+            )
+        }
+        else res.status(404).send({message: "like not found!"})
     })
 }
 
@@ -153,10 +145,22 @@ const addNewComment = (req, res) =>
     delete req.body.created_date
     req.body.user_id = req.headers.authorization._id
     const newEventComment = new eventComment(req.body)
-    newEventComment.save((err, createdEvent) =>
+    newEventComment.save((err, createdComment) =>
     {
         if (err) res.status(400).send(err)
-        else res.send(createdEvent)
+        else
+        {
+            event.findOneAndUpdate(
+                {_id: req.body.event_id, creator_id: req.headers.authorization._id},
+                {$inc: {comments_count: 1}},
+                {useFindAndModify: false},
+                (err) =>
+                {
+                    if (err) res.status(400).send(err)
+                    else res.send(createdComment)
+                },
+            )
+        }
     })
 }
 
@@ -176,16 +180,36 @@ const updateCommentById = (req, res) =>
 
 const deleteComment = (req, res) =>
 {
-    eventComment.findOneAndUpdate(
-        {_id: req.params.commentId, user_id: req.headers.authorization._id},
-        {is_deleted: true},
-        {new: true, useFindAndModify: false},
-        (err) =>
+    eventComment.findOne({_id: req.params.commentId, user_id: req.headers.authorization._id, is_deleted: false}, (err, takenComment) =>
+    {
+        if (err) res.status(400).send(err)
+        else if (!takenComment) res.status(404).send({message: "comment not found!"})
+        else
         {
-            if (err) res.status(400).send(err)
-            else res.send({message: "comment deleted successfully"})
-        },
-    )
+            eventComment.findOneAndUpdate(
+                {_id: req.params.commentId, user_id: req.headers.authorization._id},
+                {is_deleted: true},
+                {useFindAndModify: false},
+                (err) =>
+                {
+                    if (err) res.status(400).send(err)
+                    else
+                    {
+                        event.findOneAndUpdate(
+                            {_id: takenComment.event_id, creator_id: req.headers.authorization._id},
+                            {$inc: {comments_count: -1}},
+                            {useFindAndModify: false},
+                            (err) =>
+                            {
+                                if (err) res.status(400).send(err)
+                                else res.send({message: "comment deleted successfully"})
+                            },
+                        )
+                    }
+                },
+            )
+        }
+    })
 }
 
 const eventController = {
