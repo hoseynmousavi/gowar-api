@@ -43,6 +43,14 @@ const eventModel = new schema({
     age_limit: {
         type: Number,
     },
+    comments_count: {
+        type: Number,
+        default: 0,
+    },
+    likes_count: {
+        type: Number,
+        default: 0,
+    },
     is_deleted: {
         type: Boolean,
         index: true,
