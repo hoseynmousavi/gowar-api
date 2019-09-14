@@ -79,43 +79,35 @@ const getEventById = (req, res) =>
 
 const updateEventById = (req, res) =>
 {
-    if (req.headers.authorization._id)
-    {
-        delete req.body.created_date
-        delete req.body.is_pinned
-        delete req.body.is_deleted
-        delete req.body.creator_id
-        req.body.category ? req.body.category = JSON.parse(req.body.category) : null
-        event.findOneAndUpdate(
-            {_id: req.body._id, creator_id: req.headers.authorization._id, is_deleted: false},
-            req.body,
-            {new: true, useFindAndModify: false},
-            (err, updatedEvent) =>
-            {
-                if (err) res.status(400).send(err)
-                else res.send(updatedEvent)
-            },
-        )
-    }
-    else res.status(500).send({message: "auth error"})
+    delete req.body.created_date
+    delete req.body.is_pinned
+    delete req.body.is_deleted
+    delete req.body.creator_id
+    req.body.category ? req.body.category = JSON.parse(req.body.category) : null
+    event.findOneAndUpdate(
+        {_id: req.body._id, creator_id: req.headers.authorization._id, is_deleted: false},
+        req.body,
+        {new: true, useFindAndModify: false, runValidators: true},
+        (err, updatedEvent) =>
+        {
+            if (err) res.status(400).send(err)
+            else res.send(updatedEvent)
+        },
+    )
 }
 
 const deleteEventById = (req, res) =>
 {
-    if (req.headers.authorization._id)
-    {
-        event.findOneAndUpdate(
-            {_id: req.params.eventId, creator_id: req.headers.authorization._id},
-            {is_deleted: true},
-            {new: true, useFindAndModify: false},
-            (err) =>
-            {
-                if (err) res.status(400).send(err)
-                else res.send({message: "event deleted successfully"})
-            },
-        )
-    }
-    else res.status(500).send({message: "auth error"})
+    event.findOneAndUpdate(
+        {_id: req.params.eventId, creator_id: req.headers.authorization._id},
+        {is_deleted: true},
+        {new: true, useFindAndModify: false},
+        (err) =>
+        {
+            if (err) res.status(400).send(err)
+            else res.send({message: "event deleted successfully"})
+        },
+    )
 }
 
 const addNewLike = (req, res) =>
@@ -141,7 +133,7 @@ const deleteLike = (req, res) =>
 
 const getEventComments = (req, res) =>
 {
-    eventComment.find({is_deleted: false, event_id: req.params.commentId}, (err, events) =>
+    eventComment.find({is_deleted: false, event_id: req.params.eventId}, (err, events) =>
     {
         if (err) res.status(400).send(err)
         else res.send(events)

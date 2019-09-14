@@ -17,8 +17,10 @@ const eventRouter = (app) =>
         .post(eventController.addNewComment)
         .patch(eventController.updateCommentById)
 
+    app.route("/event/comments/:eventId")
+        .get(eventController.getEventComments)
+
     app.route("/event/comment/:commentId")
-        .get(eventController.getEventComments) // maybe confusing with get a specific comment
         .delete(eventController.deleteComment)
 
     app.route("/event/:eventId")
