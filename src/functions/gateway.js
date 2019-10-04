@@ -1,14 +1,13 @@
 import tokenHelper from "./tokenHelper"
 
-const addHeaderAndCheckPermissions = (app) =>
+const gateway = (app) =>
 {
     app.use((req, res, next) =>
     {
         res.setHeader("Access-Control-Allow-Origin", "*")
         if (
             (req.originalUrl === "/") ||
-            (req.originalUrl === "/user" && req.method === "POST") ||
-            (req.originalUrl === "/user" && req.method === "GET") ||
+            (req.originalUrl === "/user" && (req.method === "POST" || req.method === "GET")) ||
             (req.originalUrl === "/user/login") ||
             (req.originalUrl === "/DatePicker")
         )
@@ -32,4 +31,4 @@ const addHeaderAndCheckPermissions = (app) =>
     })
 }
 
-export default addHeaderAndCheckPermissions
+export default gateway

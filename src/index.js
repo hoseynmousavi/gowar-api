@@ -9,7 +9,7 @@ import userRouter from "./routes/userRouter"
 import eventRouter from "./routes/eventRouter"
 import datePickerRouter from "./routes/datePickerRouter"
 import notFoundRooter from "./routes/notFoundRouter"
-import addHeaderAndCheckPermissions from "./functions/addHeaderAndCheckPermissions"
+import gateway from "./functions/gateway"
 
 // Normal Things Never Leave Us Alone ...
 const app = express()
@@ -19,11 +19,10 @@ app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
 
 mongoose.Promise = global.Promise
-// mongoose.connect('mongodb://localhost:27017/amani', {useNewUrlParser: true})
 mongoose.connect(data.connectDb, {useNewUrlParser: true})
 
 // Add Header To All Responses & Token Things
-addHeaderAndCheckPermissions(app)
+gateway(app)
 
 // Routing Shits
 rootRouter(app)

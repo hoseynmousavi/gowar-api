@@ -96,7 +96,7 @@ const addNewLike = (req, res) =>
         else
         {
             event.findOneAndUpdate(
-                {_id: req.body.event_id, creator_id: req.headers.authorization._id},
+                {_id: req.body.event_id},
                 {$inc: {likes_count: 1}},
                 {useFindAndModify: false},
                 (err) =>
@@ -117,7 +117,7 @@ const deleteLike = (req, res) =>
         else if (statistic.deletedCount === 1)
         {
             event.findOneAndUpdate(
-                {_id: req.params.eventId, creator_id: req.headers.authorization._id},
+                {_id: req.params.eventId},
                 {$inc: {likes_count: -1}},
                 {useFindAndModify: false},
                 (err) =>
@@ -151,7 +151,7 @@ const addNewComment = (req, res) =>
         else
         {
             event.findOneAndUpdate(
-                {_id: req.body.event_id, creator_id: req.headers.authorization._id},
+                {_id: req.body.event_id},
                 {$inc: {comments_count: 1}},
                 {useFindAndModify: false},
                 (err) =>
@@ -196,7 +196,7 @@ const deleteComment = (req, res) =>
                     else
                     {
                         event.findOneAndUpdate(
-                            {_id: takenComment.event_id, creator_id: req.headers.authorization._id},
+                            {_id: takenComment.event_id},
                             {$inc: {comments_count: -1}},
                             {useFindAndModify: false},
                             (err) =>
